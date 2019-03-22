@@ -1,5 +1,6 @@
 package com.violence.music.controller;
 
+import com.google.gson.Gson;
 import com.violence.music.entity.Album;
 import com.violence.music.service.AlbumService;
 import com.violence.music.service.TrackService;
@@ -8,38 +9,33 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping(value = "album")
 public class AlbumController {
     @Autowired
     private AlbumService albumService;
     @Autowired
     private TrackService trackService;
+    private Gson gson = new Gson();
 
-    @GetMapping(name = "add")
-    public String addGet(Model model) {
-        model.addAttribute("tracks", trackService.getAll());
-        return "addAlbum";
-    }
-
-    @PostMapping(name = "add")
-    public @ResponseBody String addPost(Album album) {
-        albumService.save(album);
+    @PostMapping(name = "/add")
+    public String addPost(@RequestBody String json) {
+        albumService.save(gson.fromJson(json, Album.class));
         return "added";
     }
 
-    @GetMapping(name = "getAll")
-    public @ResponseBody String getAll() {
-        return albumService.getAll().toString();
+    @GetMapping("getAll")
+    public String getAll() {
+        return gson.toJson(albumService.getAll().toString());
     }
 
-    @GetMapping(name = "getByYear/{year}")
-    public @ResponseBody String getByYear(@PathVariable(name = "year") Integer year) {
-        return albumService.getAlbumsByYear(year).toString();
+    @GetMapping("/getByYear/{year}")
+    public String getByYear(@PathVariable Integer year) {
+        return gson.toJson(albumService.getAlbumsByYear(year).toString());
     }
 
-    @GetMapping(name = "getByTrack/{track}")
-    public @ResponseBody String getByTrack(@PathVariable(name = "track") String track) {
-        return albumService.getAlbumByTrack(track).toString();
+    @GetMapping("getByTrack/{track}")
+    public String getByTrack(@PathVariable String track) {
+        return gson.toJson(albumService.getAlbumByTrack(track).toString());
     }
 }
